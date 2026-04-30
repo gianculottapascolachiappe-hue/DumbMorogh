@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://bcmcxeg4qgbrx" path="res://scripts/state_machine/walk_state.gd" id="5_b26j0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_n7ghd"]
+size = Vector2(32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dw050"]
 atlas = ExtResource("2_1jxqw")
@@ -210,7 +211,7 @@ script = ExtResource("1_sweqy")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_n7ghd")
 
-[node name="AnimateSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_dx0e4")
 animation = &"walk_up_right"
 
