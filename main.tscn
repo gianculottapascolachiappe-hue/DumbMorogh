@@ -6,17 +6,7 @@
 [node name="Main" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource("1_ig7tw")]
-speed = null
-input_left = null
-input_right = null
-input_up = null
-input_down = null
-max_health = null
-attack_damage = null
-attack_speed = null
-combat_timeout = null
-idle_anim = null
-walk_anim = null
+position = Vector2(232, 231)
 
 [node name="Enemy" parent="." instance=ExtResource("2_0xm2m")]
 position = Vector2(444, 287)

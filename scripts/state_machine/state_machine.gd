@@ -22,13 +22,16 @@ func init(p: CharacterBody2D) -> void:
 
 
 func update(delta: float) -> void:
-	current_state.update(delta)
+	if current_state:
+		current_state.update(delta)
 
 
 func change_state(new_state: BaseState) -> void:
 	if new_state == current_state:
 		return
 
-	current_state.exit()
+	if current_state:
+		current_state.exit()
+
 	current_state = new_state
 	current_state.enter()

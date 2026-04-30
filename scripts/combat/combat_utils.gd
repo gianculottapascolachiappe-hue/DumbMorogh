@@ -1,8 +1,6 @@
+extends Node
 class_name CombatUtils
 
-# =========================================================
-# COMBAT STATE HELPERS
-# =========================================================
 
 static func enter_combat(entity: Node, state: Dictionary) -> void:
 	if state.in_combat:

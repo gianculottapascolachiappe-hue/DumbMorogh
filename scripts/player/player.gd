@@ -1,57 +1,38 @@
 extends CharacterBody2D
 
+@export var idle_anim: String = "idle"
+@export var walk_anim: String = "walk"
+
 # =========================================================
 # MOVEMENT
 # =========================================================
 @export var speed: float = 200.0
-
-@export var input_left: String = "move_left"
-@export var input_right: String = "move_right"
-@export var input_up: String = "move_up"
-@export var input_down: String = "move_down"
-
 var last_direction: Vector2 = Vector2.DOWN
-
 
 # =========================================================
 # HEALTH
 # =========================================================
 @export var max_health: int = 100
-var current_health: int = 0
+var current_health: int
 var is_dead: bool = false
 
-
 # =========================================================
-# COMBAT (ATTACK)
+# COMBAT
 # =========================================================
 @export var attack_damage: int = 5
 @export var attack_speed: float = 1.2
+@export var attack_range: float = 40.0
 
 var is_attacking: bool = false
 var attack_timer: float = 0.0
-var current_attack_target: Node = null
-var combat_state := {
-	"in_combat": false,
-	"combat_timer": 0.0,
-	"combat_timeout": 5.0
-}
+var current_target: Node = null
 
 # =========================================================
 # COMBAT STATE
 # =========================================================
-var in_combat: bool = false
-@export var combat_timeout: float = 5.0
-var combat_timer: float = 0.0
-
-
-# =========================================================
-# ANIMATION
-# =========================================================
-@export var idle_anim: String = "idle"
-@export var walk_anim: String = "walk"
-
-var current_anim: String = ""
-
+var combat_state := {
+	"in_combat": false
+}
 
 # =========================================================
 # NODES
@@ -59,15 +40,16 @@ var current_anim: String = ""
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine: Node = $StateMachine
 
-
 # =========================================================
-# LIFECYCLE
+# INIT
 # =========================================================
 func _ready() -> void:
 	current_health = max_health
 	state_machine.init(self)
 
-
+# =========================================================
+# MAIN LOOP
+# =========================================================
 func _physics_process(delta: float) -> void:
 	state_machine.update(delta)
 	move_and_slide()
@@ -75,14 +57,9 @@ func _physics_process(delta: float) -> void:
 	if is_attacking:
 		handle_auto_attack(delta)
 
-	if in_combat:
-		handle_combat_state(delta)
-
-
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("attack"):
 		start_attack()
-
 
 # =========================================================
 # MOVEMENT
@@ -93,7 +70,6 @@ func apply_movement(dir: Vector2) -> void:
 	if dir != Vector2.ZERO:
 		last_direction = dir
 
-
 # =========================================================
 # HEALTH
 # =========================================================
@@ -101,16 +77,14 @@ func take_damage(amount: int) -> void:
 	if is_dead:
 		return
 
-	CombatUtils.enter_combat(self, combat_state)
-
-	current_health -= amount
-	current_health = max(current_health, 0)
+	current_health = max(current_health - amount, 0)
 
 	print("Player HP:", current_health)
 
-	if current_health == 0:
-		die()
+	enter_combat()
 
+	if current_health <= 0:
+		die()
 
 func die() -> void:
 	is_dead = true
@@ -121,50 +95,46 @@ func die() -> void:
 	stop_attack()
 	velocity = Vector2.ZERO
 
-
 # =========================================================
 # COMBAT STATE
 # =========================================================
-func on_enter_combat() -> void:
+func enter_combat() -> void:
+	if combat_state.in_combat:
+		return
+
+	combat_state.in_combat = true
 	print("Player entered combat")
 
+func exit_combat() -> void:
+	if not combat_state.in_combat:
+		return
 
-func on_exit_combat() -> void:
-	stop_attack()
+	combat_state.in_combat = false
 	print("Player exited combat")
-
-
-func handle_combat_state(delta: float) -> void:
-	combat_timer -= delta
-
-	combat_state.combat_timer -= delta
-
-	if combat_state.combat_timer <= 0.0:
-		CombatUtils.exit_combat(self, combat_state)
-
+	stop_attack()
 
 # =========================================================
 # ATTACK SYSTEM
 # =========================================================
 func start_attack() -> void:
 	var target = TargetManager.current_target
-
 	if target == null:
 		return
 
-	CombatUtils.enter_combat(self, combat_state)
-
-	current_attack_target = target
+	current_target = target
 	is_attacking = true
 	attack_timer = 0.0
 
+	enter_combat()
+
 	print("Auto-attack started on:", target.name)
 
-
 func handle_auto_attack(delta: float) -> void:
-	var target = TargetManager.current_target
+	if current_target == null or not is_instance_valid(current_target):
+		stop_attack()
+		return
 
-	if target != current_attack_target:
+	if TargetManager.current_target != current_target:
 		stop_attack()
 		return
 
@@ -174,27 +144,29 @@ func handle_auto_attack(delta: float) -> void:
 		attack_timer = attack_speed
 		perform_attack()
 
-
 func perform_attack() -> void:
-	var target = TargetManager.current_target
-
-	if target == null:
-		stop_attack()
+	if current_target == null or not is_instance_valid(current_target):
 		return
 
-	if not is_instance_valid(target):
-		stop_attack()
+	var to_target: Vector2 = (current_target.global_position - global_position).normalized()
+	var facing: Vector2 = last_direction.normalized()
+
+	var dist := global_position.distance_to(current_target.global_position)
+	if dist > attack_range:
 		return
 
-	if target.has_method("take_damage"):
-		target.take_damage(attack_damage)
+	var dot := facing.dot(to_target)
+	if dot < 0.5:
+		print("You are facing the wrong direction")
+		return
 
+	if current_target.has_method("take_damage"):
+		current_target.take_damage(attack_damage)
 
 func stop_attack() -> void:
 	is_attacking = false
-	current_attack_target = null
+	current_target = null
 	print("Auto-attack stopped")
-
 
 # =========================================================
 # ANIMATION
@@ -202,12 +174,10 @@ func stop_attack() -> void:
 func play_animation(action: String, dir: Vector2) -> void:
 	var anim = action + "_" + _get_direction_name(dir)
 
-	if anim == current_anim:
+	if sprite.animation == anim:
 		return
 
-	current_anim = anim
 	sprite.play(anim)
-
 
 func _get_direction_name(dir: Vector2) -> String:
 	if dir == Vector2.ZERO:

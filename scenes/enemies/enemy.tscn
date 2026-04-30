@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://cre2nlhgaf64q"]
+[gd_scene load_steps=7 format=3 uid="uid://cre2nlhgaf64q"]
 
 [ext_resource type="Script" uid="uid://dbvagm3o15uxj" path="res://scripts/enemies/area_2d.gd" id="1_6xk8f"]
 [ext_resource type="Texture2D" uid="uid://bnjbwfw3omnw8" path="res://assets/sprites/Sprite-0001.png" id="1_8e3ao"]
 [ext_resource type="Script" uid="uid://crjivuhxqdri8" path="res://scripts/enemies/enemy.gd" id="1_38ino"]
+[ext_resource type="Texture2D" uid="uid://c6dtd53pcms66" path="res://assets/sprites/Sprite-0002.png" id="4_fcftc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ykcao"]
 size = Vector2(32, 32)
@@ -11,6 +12,7 @@ size = Vector2(32, 32)
 size = Vector2(32, 32)
 
 [node name="Enemy" type="CharacterBody2D"]
+collision_mask = 2
 script = ExtResource("1_38ino")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -24,3 +26,11 @@ script = ExtResource("1_6xk8f")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource("RectangleShape2D_8e3ao")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+texture = ExtResource("4_fcftc")

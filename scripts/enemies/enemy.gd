@@ -1,115 +1,122 @@
 extends CharacterBody2D
 
+@onready var target_indicator: TextureRect = $TextureRect
+
 # =========================================================
-# HEALTH
+# STATS
 # =========================================================
 @export var max_health: int = 30
-var current_health: int = 0
-
+@export var move_speed: float = 80.0
+var is_dead: bool = false
+var current_health: int
 
 # =========================================================
-# COMBAT (ATTACK)
+# COMBAT
 # =========================================================
 @export var attack_damage: int = 3
 @export var attack_speed: float = 1.5
+@export var attack_range: float = 40.0
+@export var aggro_range: float = 120.0
 
-var is_attacking: bool = false
-var attack_timer: float = 0.0
 var target: Node = null
-var combat_state := {
-	"in_combat": false,
-	"combat_timer": 0.0,
-	"combat_timeout": 5.0
-}
-
-# =========================================================
-# COMBAT STATE
-# =========================================================
+var attack_timer: float = 0.0
 var in_combat: bool = false
-@export var combat_timeout: float = 5.0
-var combat_timer: float = 0.0
-
 
 # =========================================================
-# LIFECYCLE
+# INIT
 # =========================================================
 func _ready() -> void:
 	current_health = max_health
+	target = get_tree().get_first_node_in_group("player")
 
-
+# =========================================================
+# MAIN LOOP
+# =========================================================
 func _physics_process(delta: float) -> void:
-	if is_attacking:
-		handle_auto_attack(delta)
+	if is_dead:
+		return
+	update_aggro()
 
 	if in_combat:
-		handle_combat_state(delta)
+		handle_combat(delta)
+	else:
+		velocity = Vector2.ZERO
 
+	move_and_slide()
 
 # =========================================================
-# HEALTH
+# AGGRO
 # =========================================================
-func take_damage(amount: int) -> void:
-	if current_health <= 0:
+func update_aggro() -> void:
+	if is_dead or in_combat:
 		return
 
-	CombatUtils.enter_combat(self, combat_state)
+	if target == null or not is_instance_valid(target):
+		target = get_tree().get_first_node_in_group("player")
+		if target == null:
+			return
 
-	current_health -= amount
-	current_health = max(current_health, 0)
+	var dist := global_position.distance_to(target.global_position)
 
-	print(name, "HP:", current_health)
-
-	if current_health == 0:
-		die()
-
-
-func die() -> void:
-	print("Enemy died")
-
-	stop_attack()
-
-	if TargetManager.current_target == self:
-		TargetManager.clear_target()
-
-	queue_free()
-
+	if dist <= aggro_range:
+		enter_combat()
 
 # =========================================================
 # COMBAT STATE
 # =========================================================
-func on_enter_combat() -> void:
-	print(name, "entered combat")
-
-	is_attacking = true
-	attack_timer = 0.0
-
-	if target == null:
-		target = get_tree().get_first_node_in_group("player")
-
-
-func on_exit_combat() -> void:
-	stop_attack()
-	print(name, "exited combat")
-
-
-func handle_combat_state(delta: float) -> void:
-	combat_timer -= delta
-
-	if combat_timer <= 0.0:
-		CombatUtils.exit_combat(self, combat_state)
-
-
-# =========================================================
-# ATTACK SYSTEM
-# =========================================================
-func handle_auto_attack(delta: float) -> void:
-	if target == null:
-		stop_attack()
+func enter_combat() -> void:
+	if in_combat:
 		return
 
-	# stop if player dead
-	if target.has_method("is_dead") and target.is_dead:
-		stop_attack()
+	in_combat = true
+	attack_timer = 0.0
+
+	print(name, "entered combat")
+
+func exit_combat() -> void:
+	if not in_combat:
+		return
+
+	in_combat = false
+	attack_timer = 0.0
+
+	print(name, "exited combat")
+
+# =========================================================
+# COMBAT LOOP
+# =========================================================
+func handle_combat(delta: float) -> void:
+	if target == null or not is_instance_valid(target):
+		exit_combat()
+		return
+
+	handle_chase()
+	handle_attack(delta)
+
+# =========================================================
+# CHASE
+# =========================================================
+func handle_chase() -> void:
+	var dist := global_position.distance_to(target.global_position)
+
+	if dist <= attack_range:
+		velocity = Vector2.ZERO
+		return
+
+	var dir: Vector2 = (target.global_position - global_position).normalized()
+	velocity = dir * move_speed
+
+# =========================================================
+# ATTACK
+# =========================================================
+func handle_attack(delta: float) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+
+	var dist := global_position.distance_to(target.global_position)
+
+	# 🚨 HARD CHECK BEFORE TIMER
+	if dist > attack_range:
 		return
 
 	attack_timer -= delta
@@ -118,16 +125,51 @@ func handle_auto_attack(delta: float) -> void:
 		attack_timer = attack_speed
 		perform_attack()
 
-
 func perform_attack() -> void:
-	if target == null:
+	if target == null or not is_instance_valid(target):
+		return
+
+	var dist := global_position.distance_to(target.global_position)
+
+	if dist > attack_range:
 		return
 
 	if target.has_method("take_damage"):
 		target.take_damage(attack_damage)
 
+# =========================================================
+# DAMAGE
+# =========================================================
+func take_damage(amount: int) -> void:
+	if current_health <= 0:
+		return
 
-func stop_attack() -> void:
-	is_attacking = false
-	target = null
-	print(name, "stopped attacking")
+	current_health = max(current_health - amount, 0)
+
+	print(name, "HP:", current_health)
+
+	enter_combat()
+
+	if current_health == 0:
+		die()
+
+func die() -> void:
+	if is_dead:
+		return
+
+	is_dead = true
+
+	print(name, "died")
+
+	exit_combat()
+
+	if TargetManager.current_target == self:
+		TargetManager.clear_target()
+
+	queue_free()
+
+
+# placeholder of target indicator
+func set_targeted(value: bool) -> void:
+	if target_indicator:
+		target_indicator.visible = value
