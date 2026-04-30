@@ -30,7 +30,11 @@ var is_dead: bool = false
 var is_attacking: bool = false
 var attack_timer: float = 0.0
 var current_attack_target: Node = null
-
+var combat_state := {
+	"in_combat": false,
+	"combat_timer": 0.0,
+	"combat_timeout": 5.0
+}
 
 # =========================================================
 # COMBAT STATE
@@ -97,7 +101,7 @@ func take_damage(amount: int) -> void:
 	if is_dead:
 		return
 
-	enter_combat()
+	CombatUtils.enter_combat(self, combat_state)
 
 	current_health -= amount
 	current_health = max(current_health, 0)
@@ -121,17 +125,11 @@ func die() -> void:
 # =========================================================
 # COMBAT STATE
 # =========================================================
-func enter_combat() -> void:
-	if in_combat:
-		return
-
-	in_combat = true
-	combat_timer = combat_timeout
+func on_enter_combat() -> void:
 	print("Player entered combat")
 
 
-func exit_combat() -> void:
-	in_combat = false
+func on_exit_combat() -> void:
 	stop_attack()
 	print("Player exited combat")
 
@@ -139,8 +137,10 @@ func exit_combat() -> void:
 func handle_combat_state(delta: float) -> void:
 	combat_timer -= delta
 
-	if combat_timer <= 0.0:
-		exit_combat()
+	combat_state.combat_timer -= delta
+
+	if combat_state.combat_timer <= 0.0:
+		CombatUtils.exit_combat(self, combat_state)
 
 
 # =========================================================
@@ -152,7 +152,7 @@ func start_attack() -> void:
 	if target == null:
 		return
 
-	enter_combat()
+	CombatUtils.enter_combat(self, combat_state)
 
 	current_attack_target = target
 	is_attacking = true

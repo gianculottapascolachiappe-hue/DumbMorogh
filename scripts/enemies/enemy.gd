@@ -16,7 +16,11 @@ var current_health: int = 0
 var is_attacking: bool = false
 var attack_timer: float = 0.0
 var target: Node = null
-
+var combat_state := {
+	"in_combat": false,
+	"combat_timer": 0.0,
+	"combat_timeout": 5.0
+}
 
 # =========================================================
 # COMBAT STATE
@@ -48,7 +52,7 @@ func take_damage(amount: int) -> void:
 	if current_health <= 0:
 		return
 
-	enter_combat()
+	CombatUtils.enter_combat(self, combat_state)
 
 	current_health -= amount
 	current_health = max(current_health, 0)
@@ -73,28 +77,17 @@ func die() -> void:
 # =========================================================
 # COMBAT STATE
 # =========================================================
-func enter_combat() -> void:
-	if in_combat:
-		return
-
-	in_combat = true
-	combat_timer = combat_timeout
-
-	if target == null:
-		target = get_tree().get_first_node_in_group("player")
-
-	if target == null:
-		print("ERROR: No player found in group!")
-		return
+func on_enter_combat() -> void:
+	print(name, "entered combat")
 
 	is_attacking = true
 	attack_timer = 0.0
 
-	print(name, "entered combat")
+	if target == null:
+		target = get_tree().get_first_node_in_group("player")
 
 
-func exit_combat() -> void:
-	in_combat = false
+func on_exit_combat() -> void:
 	stop_attack()
 	print(name, "exited combat")
 
@@ -103,7 +96,7 @@ func handle_combat_state(delta: float) -> void:
 	combat_timer -= delta
 
 	if combat_timer <= 0.0:
-		exit_combat()
+		CombatUtils.exit_combat(self, combat_state)
 
 
 # =========================================================
