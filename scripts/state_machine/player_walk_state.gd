@@ -1,16 +1,10 @@
 extends PlayerBaseState
 
 
-# =========================================================
-# ENTER STATE
-# =========================================================
 func enter() -> void:
 	pass
 
 
-# =========================================================
-# UPDATE (DECISION ONLY)
-# =========================================================
 func update(delta: float) -> void:
 	var input_dir := Input.get_vector(
 		"move_left",

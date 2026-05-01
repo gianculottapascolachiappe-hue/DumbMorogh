@@ -1,6 +1,10 @@
 extends CharacterBody2D
 
 @onready var target_indicator: TextureRect = $TextureRect
+@export var idle_anim: String = "idle"
+@export var walk_anim: String = "walk"
+@onready var sprite: AnimatedSprite2D = $EnemyAnimation
+@onready var player_state_machine: Node = $AIStateMachine
 
 # STATS
 @export var max_health: int = 30
@@ -204,3 +208,40 @@ func die() -> void:
 func set_targeted(value: bool) -> void:
 	if target_indicator:
 		target_indicator.visible = value
+
+
+# =========================================================
+# ANIMATION
+# =========================================================
+func play_animation(action: String, dir: Vector2) -> void:
+	var anim = action + "_" + _get_direction_name(dir)
+
+	if sprite.animation == anim:
+		return
+
+	sprite.play(anim)
+
+func _get_direction_name(dir: Vector2) -> String:
+	if dir == Vector2.ZERO:
+		dir = Vector2.DOWN
+
+	var angle = dir.angle()
+
+	if angle >= -PI/8 and angle < PI/8:
+		return "right"
+	elif angle >= PI/8 and angle < 3*PI/8:
+		return "down_right"
+	elif angle >= 3*PI/8 and angle < 5*PI/8:
+		return "down"
+	elif angle >= 5*PI/8 and angle < 7*PI/8:
+		return "down_left"
+	elif angle >= 7*PI/8 or angle < -7*PI/8:
+		return "left"
+	elif angle >= -7*PI/8 and angle < -5*PI/8:
+		return "up_left"
+	elif angle >= -5*PI/8 and angle < -3*PI/8:
+		return "up"
+	elif angle >= -3*PI/8 and angle < -PI/8:
+		return "up_right"
+
+	return "down"

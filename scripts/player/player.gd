@@ -37,7 +37,7 @@ var combat_state := {
 # =========================================================
 # NODES
 # =========================================================
-@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var sprite: AnimatedSprite2D = $PlayerAnimation
 @onready var player_state_machine: Node = $PlayerStateMachine
 
 # =========================================================
