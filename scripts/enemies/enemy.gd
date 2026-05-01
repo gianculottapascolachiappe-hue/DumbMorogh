@@ -4,7 +4,8 @@ extends CharacterBody2D
 @export var idle_anim: String = "idle"
 @export var walk_anim: String = "walk"
 @onready var sprite: AnimatedSprite2D = $EnemyAnimation
-@onready var player_state_machine: Node = $AIStateMachine
+@onready var ai_state_machine: Node = $AIStateMachine
+var last_direction: Vector2 = Vector2.DOWN
 
 # STATS
 @export var max_health: int = 30
@@ -30,16 +31,28 @@ var is_returning: bool = false
 # INIT
 func _ready() -> void:
 	current_health = max_health
+	ai_state_machine.init(self)
 	spawn_position = global_position
 	target = get_tree().get_first_node_in_group("player")
 
 	if target_indicator:
 		target_indicator.visible = false
 
+
+# MOVEMENT
+func apply_movement(dir: Vector2) -> void:
+	velocity = dir.normalized() * move_speed
+
+	if dir != Vector2.ZERO:
+		last_direction = dir
+
 # MAIN LOOP
 func _physics_process(delta: float) -> void:
 	if is_dead:
 		return
+
+	# 🔥 THIS IS WHAT YOU'RE MISSING
+	ai_state_machine.update(delta)
 
 	update_aggro()
 

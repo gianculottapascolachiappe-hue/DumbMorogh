@@ -1,29 +1,23 @@
 extends Node
-class_name AIStateMachine
 
-var current_state: PlayerBaseState
-var actor: CharacterBody2D
+var current_state: AIBaseState
+var enemy: CharacterBody2D
 
-var player_idle_state: PlayerBaseState
-var player_walk_state: PlayerBaseState
+var enemy_idle_state: AIBaseState
+var enemy_walk_state: AIBaseState
 
 
-func init(entity: CharacterBody2D) -> void:
-	actor = entity
+func init(e: CharacterBody2D) -> void:
+	enemy = e
 
-	# assign states + cache references
-	for child in get_children():
-		if child is PlayerBaseState:
-			child.actor = actor
-			child.state_machine = self
+	enemy_idle_state = $EnemyIdleState
+	enemy_walk_state = $EnemyWalkState
 
-			if child.name == "EnemyIdleState":
-				player_idle_state = child
-			elif child.name == "EnemyWalkState":
-				player_walk_state = child
+	for s in [enemy_idle_state, enemy_walk_state]:
+		s.enemy = enemy
+		s.ai_state_machine = self
 
-	# safety check
-	current_state = player_idle_state if player_idle_state != null else get_child(0)
+	current_state = enemy_idle_state
 	current_state.enter()
 
 
@@ -32,7 +26,7 @@ func update(delta: float) -> void:
 		current_state.update(delta)
 
 
-func change_state(new_state: PlayerBaseState) -> void:
+func change_state(new_state: AIBaseState) -> void:
 	if new_state == current_state:
 		return
 
