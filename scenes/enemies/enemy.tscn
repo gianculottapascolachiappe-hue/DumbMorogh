@@ -1,9 +1,13 @@
-[gd_scene load_steps=7 format=3 uid="uid://cre2nlhgaf64q"]
+[gd_scene load_steps=11 format=3 uid="uid://cre2nlhgaf64q"]
 
 [ext_resource type="Script" uid="uid://dbvagm3o15uxj" path="res://scripts/enemies/area_2d.gd" id="1_6xk8f"]
 [ext_resource type="Texture2D" uid="uid://bnjbwfw3omnw8" path="res://assets/sprites/Sprite-0001.png" id="1_8e3ao"]
 [ext_resource type="Script" uid="uid://crjivuhxqdri8" path="res://scripts/enemies/enemy.gd" id="1_38ino"]
 [ext_resource type="Texture2D" uid="uid://c6dtd53pcms66" path="res://assets/sprites/Sprite-0002.png" id="4_fcftc"]
+[ext_resource type="Script" uid="uid://dw6tgjrwl78kc" path="res://scripts/state_machine/ai_state_machine.gd" id="5_nb6gf"]
+[ext_resource type="Script" uid="uid://cspbg8cvv0did" path="res://scripts/state_machine/enemy_idle_state.gd" id="6_jt03m"]
+[ext_resource type="Script" uid="uid://c204l84a4pfsj" path="res://scripts/state_machine/ai_base_state.gd" id="7_jt03m"]
+[ext_resource type="Script" uid="uid://bha2kxcv3ynfl" path="res://scripts/state_machine/enemy_walk_state.gd" id="7_n7575"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ykcao"]
 size = Vector2(32, 32)
@@ -34,3 +38,15 @@ offset_top = -20.0
 offset_right = 20.0
 offset_bottom = 20.0
 texture = ExtResource("4_fcftc")
+
+[node name="AIStateMachine" type="Node" parent="."]
+script = ExtResource("5_nb6gf")
+
+[node name="EnemyIdleState" type="Node" parent="AIStateMachine"]
+script = ExtResource("6_jt03m")
+
+[node name="EnemyWalkState" type="Node" parent="AIStateMachine"]
+script = ExtResource("7_n7575")
+
+[node name="AIBaseState" type="Node" parent="AIStateMachine"]
+script = ExtResource("7_jt03m")

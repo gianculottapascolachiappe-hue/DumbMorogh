@@ -2,10 +2,10 @@
 
 [ext_resource type="Script" uid="uid://llt7b6g1ei0q" path="res://scripts/player/player.gd" id="1_sweqy"]
 [ext_resource type="Texture2D" uid="uid://cf3yl5yhjo7y2" path="res://assets/animations/Sprite-0001-Sheet.png" id="2_1jxqw"]
-[ext_resource type="Script" uid="uid://cl6chejj57mv7" path="res://scripts/state_machine/state_machine.gd" id="2_2hs0m"]
-[ext_resource type="Script" uid="uid://duigvnxhsa2n3" path="res://scripts/state_machine/base_state.gd" id="3_1jxqw"]
-[ext_resource type="Script" uid="uid://dce0p8ci5madr" path="res://scripts/state_machine/idle_state.gd" id="4_dw050"]
-[ext_resource type="Script" uid="uid://bcmcxeg4qgbrx" path="res://scripts/state_machine/walk_state.gd" id="5_b26j0"]
+[ext_resource type="Script" uid="uid://cl6chejj57mv7" path="res://scripts/state_machine/player_state_machine.gd" id="2_2hs0m"]
+[ext_resource type="Script" uid="uid://duigvnxhsa2n3" path="res://scripts/state_machine/player_base_state.gd" id="3_1jxqw"]
+[ext_resource type="Script" uid="uid://dce0p8ci5madr" path="res://scripts/state_machine/player_idle_state.gd" id="4_dw050"]
+[ext_resource type="Script" uid="uid://bcmcxeg4qgbrx" path="res://scripts/state_machine/player_walk_state.gd" id="5_b26j0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_n7ghd"]
 size = Vector2(32, 32)
@@ -216,14 +216,19 @@ shape = SubResource("RectangleShape2D_n7ghd")
 sprite_frames = SubResource("SpriteFrames_dx0e4")
 animation = &"walk_up_right"
 
-[node name="StateMachine" type="Node" parent="."]
+[node name="PlayerStateMachine" type="Node" parent="."]
 script = ExtResource("2_2hs0m")
 
-[node name="BaseState" type="Node" parent="StateMachine"]
+[node name="PlayerBaseState" type="Node" parent="PlayerStateMachine"]
 script = ExtResource("3_1jxqw")
 
-[node name="IdleState" type="Node" parent="StateMachine"]
+[node name="PlayerIdleState" type="Node" parent="PlayerStateMachine"]
 script = ExtResource("4_dw050")
 
-[node name="WalkState" type="Node" parent="StateMachine"]
+[node name="PlayerWalkState" type="Node" parent="PlayerStateMachine"]
 script = ExtResource("5_b26j0")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.8, 0.8)
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0

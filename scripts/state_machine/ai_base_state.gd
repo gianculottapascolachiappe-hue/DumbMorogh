@@ -1,8 +1,8 @@
 extends Node
-class_name BaseState
+class_name AIBaseState
 
-var player: CharacterBody2D
-var state_machine: Node
+var enemy: CharacterBody2D
+var ai_state_machine: Node
 
 
 func enter() -> void:

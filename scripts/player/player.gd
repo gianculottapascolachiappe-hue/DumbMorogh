@@ -38,20 +38,20 @@ var combat_state := {
 # NODES
 # =========================================================
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var state_machine: Node = $StateMachine
+@onready var player_state_machine: Node = $PlayerStateMachine
 
 # =========================================================
 # INIT
 # =========================================================
 func _ready() -> void:
 	current_health = max_health
-	state_machine.init(self)
+	player_state_machine.init(self)
 
 # =========================================================
 # MAIN LOOP
 # =========================================================
 func _physics_process(delta: float) -> void:
-	state_machine.update(delta)
+	player_state_machine.update(delta)
 	move_and_slide()
 
 	if is_attacking:

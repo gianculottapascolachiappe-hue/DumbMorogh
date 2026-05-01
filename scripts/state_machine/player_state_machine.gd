@@ -1,23 +1,23 @@
 extends Node
 
-var current_state: BaseState
+var current_state: PlayerBaseState
 var player: CharacterBody2D
 
-var idle_state: BaseState
-var walk_state: BaseState
+var player_idle_state: PlayerBaseState
+var player_walk_state: PlayerBaseState
 
 
 func init(p: CharacterBody2D) -> void:
 	player = p
 
-	idle_state = $IdleState
-	walk_state = $WalkState
+	player_idle_state = $PlayerIdleState
+	player_walk_state = $PlayerWalkState
 
-	for s in [idle_state, walk_state]:
+	for s in [player_idle_state, player_walk_state]:
 		s.player = player
-		s.state_machine = self
+		s.player_state_machine = self
 
-	current_state = idle_state
+	current_state = player_idle_state
 	current_state.enter()
 
 
@@ -26,7 +26,7 @@ func update(delta: float) -> void:
 		current_state.update(delta)
 
 
-func change_state(new_state: BaseState) -> void:
+func change_state(new_state: PlayerBaseState) -> void:
 	if new_state == current_state:
 		return
 

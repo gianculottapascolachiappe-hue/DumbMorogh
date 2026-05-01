@@ -1,4 +1,4 @@
-extends BaseState
+extends PlayerBaseState
 
 
 # =========================================================
@@ -21,4 +21,4 @@ func update(delta: float) -> void:
 	)
 
 	if input_dir != Vector2.ZERO:
-		state_machine.change_state(state_machine.walk_state)
+		player_state_machine.change_state(player_state_machine.player_walk_state)
