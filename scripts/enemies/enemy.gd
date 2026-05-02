@@ -6,6 +6,8 @@ extends CharacterBody2D
 @onready var sprite: AnimatedSprite2D = $EnemyAnimation
 @onready var ai_state_machine: Node = $AIStateMachine
 var last_direction: Vector2 = Vector2.DOWN
+@export var attack_anim: String = "attack"
+var is_attacking: bool = false
 
 # STATS
 @export var max_health: int = 30
@@ -38,6 +40,13 @@ func _ready() -> void:
 	if target_indicator:
 		target_indicator.visible = false
 
+	sprite.animation_finished.connect(_on_animation_finished)
+
+
+func _on_animation_finished() -> void:
+	if sprite.animation.begins_with("attack"):
+		is_attacking = false
+
 
 # MOVEMENT
 func apply_movement(dir: Vector2) -> void:
@@ -63,6 +72,8 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity = Vector2.ZERO
 
+	if velocity.length() > 1.0:
+		last_direction = velocity.normalized()
 	move_and_slide()
 
 # AGGRO
@@ -180,6 +191,10 @@ func perform_attack() -> void:
 
 	if dist > attack_range:
 		return
+
+	# 🔥 start attack
+	is_attacking = true
+	play_animation(attack_anim, last_direction)
 
 	if target.has_method("take_damage"):
 		target.take_damage(attack_damage)

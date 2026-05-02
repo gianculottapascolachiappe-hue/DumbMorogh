@@ -5,6 +5,8 @@ func enter() -> void:
 
 
 func update(delta: float) -> void:
+	if enemy.is_attacking:
+		return
 	var target = enemy.target
 
 	if target == null or not is_instance_valid(target):
@@ -17,8 +19,8 @@ func update(delta: float) -> void:
 		ai_state_machine.change_state(ai_state_machine.enemy_idle_state)
 		return
 
-	var dir: Vector2 = (target.global_position - enemy.global_position).normalized()
-
-	enemy.apply_movement(dir)
-
-	enemy.play_animation("walk", dir)
+	# 🔥 ONLY control animation here
+	if enemy.velocity.length() > 1.0:
+		enemy.play_animation("walk", enemy.velocity)
+	else:
+		enemy.play_animation("idle", enemy.last_direction)
