@@ -1,6 +1,7 @@
-[gd_scene load_steps=25 format=3 uid="uid://bm1pbdndw4hb"]
+[gd_scene load_steps=27 format=3 uid="uid://bm1pbdndw4hb"]
 
 [ext_resource type="Script" uid="uid://llt7b6g1ei0q" path="res://scripts/player/player.gd" id="1_sweqy"]
+[ext_resource type="Texture2D" uid="uid://dgj8gqcbarnya" path="res://assets/animations/Sprite-0004-Sheet.png" id="2_0owmy"]
 [ext_resource type="Texture2D" uid="uid://cf3yl5yhjo7y2" path="res://assets/animations/Sprite-0001-Sheet.png" id="2_1jxqw"]
 [ext_resource type="Script" uid="uid://cl6chejj57mv7" path="res://scripts/state_machine/player_state_machine.gd" id="2_2hs0m"]
 [ext_resource type="Script" uid="uid://duigvnxhsa2n3" path="res://scripts/state_machine/player_base_state.gd" id="3_1jxqw"]
@@ -9,6 +10,10 @@
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_n7ghd"]
 size = Vector2(32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qek5x"]
+atlas = ExtResource("2_0owmy")
+region = Rect2(640, 0, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dw050"]
 atlas = ExtResource("2_1jxqw")
@@ -76,6 +81,14 @@ region = Rect2(480, 0, 32, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_dx0e4"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qek5x")
+}],
+"loop": false,
+"name": &"attack_right",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_dw050")
@@ -214,7 +227,7 @@ shape = SubResource("RectangleShape2D_n7ghd")
 
 [node name="PlayerAnimation" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_dx0e4")
-animation = &"walk_up_right"
+animation = &"attack_right"
 
 [node name="PlayerStateMachine" type="Node" parent="."]
 script = ExtResource("2_2hs0m")

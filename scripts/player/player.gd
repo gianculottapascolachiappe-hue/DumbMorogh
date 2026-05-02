@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 @export var idle_anim: String = "idle"
 @export var walk_anim: String = "walk"
+@export var attack_anim: String = "attack"
 
 # =========================================================
 # MOVEMENT
@@ -159,6 +160,9 @@ func perform_attack() -> void:
 	if dot < 0.5:
 		print("You are facing the wrong direction")
 		return
+	
+	is_attacking = true
+	play_animation(attack_anim, last_direction)
 
 	if current_target.has_method("take_damage"):
 		current_target.take_damage(attack_damage)
