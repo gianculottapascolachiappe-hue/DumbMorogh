@@ -1,14 +1,48 @@
-[gd_scene load_steps=25 format=3 uid="uid://bm1pbdndw4hb"]
+[gd_scene load_steps=35 format=3 uid="uid://bm1pbdndw4hb"]
 
 [ext_resource type="Script" uid="uid://llt7b6g1ei0q" path="res://scripts/player/player.gd" id="1_sweqy"]
 [ext_resource type="Texture2D" uid="uid://cf3yl5yhjo7y2" path="res://assets/animations/Sprite-0001-Sheet.png" id="2_1jxqw"]
 [ext_resource type="Script" uid="uid://cl6chejj57mv7" path="res://scripts/state_machine/player_state_machine.gd" id="2_2hs0m"]
+[ext_resource type="Texture2D" uid="uid://dgj8gqcbarnya" path="res://assets/animations/Sprite-0004-Sheet.png" id="2_qek5x"]
 [ext_resource type="Script" uid="uid://duigvnxhsa2n3" path="res://scripts/state_machine/player_base_state.gd" id="3_1jxqw"]
 [ext_resource type="Script" uid="uid://dce0p8ci5madr" path="res://scripts/state_machine/player_idle_state.gd" id="4_dw050"]
 [ext_resource type="Script" uid="uid://bcmcxeg4qgbrx" path="res://scripts/state_machine/player_walk_state.gd" id="5_b26j0"]
+[ext_resource type="Script" uid="uid://3xhms2u512nb" path="res://scripts/state_machine/player_attack_state.gd" id="8_5gtgg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_n7ghd"]
 size = Vector2(32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qek5x"]
+atlas = ExtResource("2_qek5x")
+region = Rect2(512, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5gtgg"]
+atlas = ExtResource("2_qek5x")
+region = Rect2(544, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_je7p5"]
+atlas = ExtResource("2_qek5x")
+region = Rect2(576, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fm80t"]
+atlas = ExtResource("2_qek5x")
+region = Rect2(608, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h17s1"]
+atlas = ExtResource("2_qek5x")
+region = Rect2(640, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gx1jg"]
+atlas = ExtResource("2_qek5x")
+region = Rect2(672, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ugbui"]
+atlas = ExtResource("2_qek5x")
+region = Rect2(704, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fcs02"]
+atlas = ExtResource("2_qek5x")
+region = Rect2(736, 0, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dw050"]
 atlas = ExtResource("2_1jxqw")
@@ -76,6 +110,70 @@ region = Rect2(480, 0, 32, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_dx0e4"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qek5x")
+}],
+"loop": false,
+"name": &"attack_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5gtgg")
+}],
+"loop": false,
+"name": &"attack_down_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_je7p5")
+}],
+"loop": false,
+"name": &"attack_down_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fm80t")
+}],
+"loop": false,
+"name": &"attack_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h17s1")
+}],
+"loop": false,
+"name": &"attack_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gx1jg")
+}],
+"loop": false,
+"name": &"attack_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ugbui")
+}],
+"loop": false,
+"name": &"attack_up_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fcs02")
+}],
+"loop": false,
+"name": &"attack_up_right",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_dw050")
@@ -214,7 +312,7 @@ shape = SubResource("RectangleShape2D_n7ghd")
 
 [node name="PlayerAnimation" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_dx0e4")
-animation = &"walk_up_right"
+animation = &"attack_down"
 
 [node name="PlayerStateMachine" type="Node" parent="."]
 script = ExtResource("2_2hs0m")
@@ -227,6 +325,9 @@ script = ExtResource("4_dw050")
 
 [node name="PlayerWalkState" type="Node" parent="PlayerStateMachine"]
 script = ExtResource("5_b26j0")
+
+[node name="PlayerAttackState" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("8_5gtgg")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 enabled = false

@@ -1,3 +1,4 @@
+#CombatUtils.gd
 extends Node
 class_name CombatUtils
 

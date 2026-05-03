@@ -1,3 +1,4 @@
+#PlayerStateMachine.gd
 extends Node
 
 var current_state: PlayerBaseState
@@ -5,6 +6,7 @@ var player: CharacterBody2D
 
 var player_idle_state: PlayerBaseState
 var player_walk_state: PlayerBaseState
+var player_attack_state: PlayerBaseState
 
 
 func init(p: CharacterBody2D) -> void:
@@ -12,8 +14,9 @@ func init(p: CharacterBody2D) -> void:
 
 	player_idle_state = $PlayerIdleState
 	player_walk_state = $PlayerWalkState
-
-	for s in [player_idle_state, player_walk_state]:
+	player_attack_state = $PlayerAttackState
+	
+	for s in [player_idle_state, player_walk_state, player_attack_state]:
 		s.player = player
 		s.player_state_machine = self
 

@@ -1,3 +1,4 @@
+#AiBaseState
 extends Node
 class_name AIBaseState
 

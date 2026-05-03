@@ -1,3 +1,4 @@
+#EnemyWalkState.gd
 extends AIBaseState
 
 func enter() -> void:

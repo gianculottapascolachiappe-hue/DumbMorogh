@@ -1,3 +1,4 @@
+#PlayerBaseState.gd
 extends Node
 class_name PlayerBaseState
 
@@ -8,10 +9,8 @@ var player_state_machine: Node
 func enter() -> void:
 	pass
 
-
-func exit() -> void:
+func update(delta: float) -> void:
 	pass
 
-
-func update(delta: float) -> void:
+func exit() -> void:
 	pass

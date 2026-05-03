@@ -1,3 +1,4 @@
+#TargetManager.gd
 extends Node
 
 var current_target: Node = null
