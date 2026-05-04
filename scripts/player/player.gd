@@ -1,11 +1,14 @@
+#Player.gd
 extends CharacterBody2D
 
 # =========================================================
 # MOVEMENT
 # =========================================================
 @export var speed: float = 200.0
+
 var move_input: Vector2 = Vector2.ZERO
 var last_direction: Vector2 = Vector2.DOWN
+
 
 # =========================================================
 # HEALTH
@@ -14,6 +17,7 @@ var last_direction: Vector2 = Vector2.DOWN
 var current_health: int
 var is_dead: bool = false
 
+
 # =========================================================
 # COMBAT
 # =========================================================
@@ -21,11 +25,10 @@ var is_dead: bool = false
 @export var attack_speed: float = 1.2
 @export var attack_range: float = 40.0
 
-var _last_range_fail: bool = false
-var _last_facing_fail: bool = false
 var is_attacking: bool = false
 var attack_timer: float = 0.0
 var current_target: Node = null
+
 
 # =========================================================
 # DEBUG (NO SPAM)
@@ -51,6 +54,8 @@ func _ready() -> void:
 	current_health = max_health
 	player_state_machine.init(self)
 
+	sprite.animation_finished.connect(_on_animation_finished)
+
 	_log("🟢 Player ready HP: " + str(current_health))
 
 
@@ -65,21 +70,120 @@ func _physics_process(delta: float) -> void:
 
 	player_state_machine.update(delta)
 
-	# SINGLE SOURCE OF TRUTH
 	current_target = TargetManager.get_target()
 
-	# AUTO ATTACK START
-	if current_target != null and not is_attacking:
-		start_attack()
-
-	if is_attacking:
-		handle_auto_attack(delta)
-
+	_handle_attack_logic(delta)
 	_debug_state_changes()
 
 
 # =========================================================
-# INPUT
+# INPUT (movement ONLY affects facing)
+# =========================================================
+func _handle_input() -> void:
+	move_input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+
+	if move_input != Vector2.ZERO:
+		last_direction = move_input.normalized()
+
+
+func _input(event: InputEvent) -> void:
+	# ONLY TARGET SELECTION (NO ATTACK HERE)
+	if event.is_action_pressed("attack"):
+		var target = get_mouse_target()
+
+		if target == null:
+			_log("⚠️ No target under mouse")
+			return
+
+		TargetManager.set_target(target)
+		_log("🎯 Target selected: " + str(target))
+
+
+# =========================================================
+# MOVEMENT
+# =========================================================
+func _apply_movement() -> void:
+	velocity = move_input.normalized() * speed
+
+
+# =========================================================
+# ATTACK FLOW
+# =========================================================
+func _handle_attack_logic(delta: float) -> void:
+	if current_target == null or not is_instance_valid(current_target):
+		stop_attack()
+		return
+
+	if not is_attacking:
+		attack_timer -= delta
+
+		if attack_timer <= 0.0:
+			_start_attack()
+
+
+func _start_attack() -> void:
+	if current_target == null:
+		return
+
+	var dist = global_position.distance_to(current_target.global_position)
+
+	if dist > attack_range:
+		return
+
+	is_attacking = true
+	attack_timer = attack_speed
+
+	player_state_machine.change_state(player_state_machine.player_attack_state)
+
+	_log("⚔️ Attack START → " + str(current_target.name))
+
+
+func stop_attack() -> void:
+	if is_attacking:
+		_log("🛑 Attack stopped")
+
+	is_attacking = false
+	attack_timer = 0.0
+
+
+# =========================================================
+# DAMAGE RESOLUTION (called by animation end)
+# =========================================================
+func perform_attack() -> void:
+	if current_target == null or not is_instance_valid(current_target):
+		return
+
+	var dist := global_position.distance_to(current_target.global_position)
+
+	if dist > attack_range:
+		print("📏 You are too far away from target | dist:", dist)
+		return
+
+	var to_target: Vector2 = (current_target.global_position - global_position).normalized()
+	var facing: Vector2 = last_direction.normalized()
+
+	if facing.dot(to_target) < 0.5:
+		print("🧭 YOU ARE FACING THE WRONG DIRECTION!")
+
+		# 🔥 FORCE RESET SO SYSTEM CAN RETRY
+		is_attacking = false
+		attack_timer = 0.0
+		return
+
+	print("⚔️ Attack landed →", current_target.name)
+
+	if current_target.has_method("take_damage"):
+		current_target.take_damage(attack_damage)
+
+
+func _on_animation_finished() -> void:
+	if sprite.animation.begins_with("attack"):
+		perform_attack()
+		is_attacking = false
+		player_state_machine.change_state(player_state_machine.player_idle_state)
+
+# =========================================================
+# MOUSE TARGETING
 # =========================================================
 func get_mouse_target() -> Node:
 	var space_state = get_world_2d().direct_space_state
@@ -97,175 +201,21 @@ func get_mouse_target() -> Node:
 	return null
 
 
-func _handle_input() -> void:
-	move_input = Input.get_vector(
-		"move_left",
-		"move_right",
-		"move_up",
-		"move_down"
-	)
-
-	if move_input != Vector2.ZERO:
-		last_direction = move_input.normalized()
-
-
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("attack"):
-		var target = get_mouse_target()
-
-		if target == null:
-			_log("⚠️ No target under mouse")
-			return
-
-		TargetManager.set_target(target)
-
-
 # =========================================================
-# MOVEMENT
-# =========================================================
-func _apply_movement() -> void:
-	velocity = move_input.normalized() * speed
-
-
-# =========================================================
-# COMBAT
-# =========================================================
-func start_attack() -> void:
-	var target = TargetManager.current_target
-
-	if target == null:
-		_log("⚠️ start_attack failed (no target)")
-		return
-
-	current_target = target
-	is_attacking = true
-	attack_timer = 0.0
-
-	_log("⚔️ Attack START → " + target.name)
-
-
-func handle_auto_attack(delta: float) -> void:
-	if current_target == null or not is_instance_valid(current_target):
-		_log("❌ Invalid target → stop attack")
-		stop_attack()
-		return
-
-	if TargetManager.current_target != current_target:
-		_log("❌ Target changed → stop attack")
-		stop_attack()
-		return
-
-	attack_timer -= delta
-
-	if attack_timer <= 0.0:
-		attack_timer = attack_speed
-		perform_attack()
-
-
-func perform_attack() -> void:
-	if current_target == null or not is_instance_valid(current_target):
-		return
-
-	var dist := global_position.distance_to(current_target.global_position)
-
-	# =========================================================
-	# RANGE CHECK DEBUG (edge-triggered)
-	# =========================================================
-	if dist > attack_range:
-		if not _last_range_fail:
-			print("📏 You are too far away from target | dist:", dist)
-			_last_range_fail = true
-		return
-	else:
-		_last_range_fail = false
-
-	# =========================================================
-	# FACING CHECK DEBUG (edge-triggered)
-	# =========================================================
-	var to_target: Vector2 = (current_target.global_position - global_position).normalized()
-	var facing: Vector2 = last_direction.normalized()
-
-	if facing.dot(to_target) < 0.5:
-		if not _last_facing_fail:
-			print("🧭 You are facing the wrong direction!")
-			_last_facing_fail = true
-		return
-	else:
-		_last_facing_fail = false
-
-	# =========================================================
-	# SUCCESS CASE (optional but useful)
-	# =========================================================
-	print("⚔️ Attack landed →", current_target.name)
-
-	if current_target.has_method("take_damage"):
-		current_target.take_damage(attack_damage)
-
-
-func stop_attack() -> void:
-	is_attacking = false
-	current_target = null
-	attack_timer = 0.0
-
-	_log("🛑 Attack stopped")
-
-
-# =========================================================
-# HEALTH
-# =========================================================
-func take_damage(amount: int) -> void:
-	if is_dead:
-		return
-
-	current_health = max(current_health - amount, 0)
-
-	print("💥 Player took", amount, "damage | HP:", current_health)
-
-	enter_combat()
-
-	if current_health <= 0:
-		die()
-
-
-func die() -> void:
-	is_dead = true
-	current_health = 0
-
-	stop_attack()
-	velocity = Vector2.ZERO
-
-	print("💀 Player died")
-
-
-# =========================================================
-# COMBAT HOOKS
-# =========================================================
-func enter_combat() -> void:
-	pass
-
-
-func exit_combat() -> void:
-	stop_attack()
-
-
-# =========================================================
-# DEBUG SYSTEM (EVENT-BASED ONLY)
+# DEBUG (EVENT BASED ONLY)
 # =========================================================
 func _debug_state_changes() -> void:
 	if not debug_enabled:
 		return
 
-	# TARGET CHANGE
 	if current_target != _last_target:
 		print("🎯 Target →", current_target)
 		_last_target = current_target
 
-	# ATTACK STATE CHANGE
 	if is_attacking != _last_attack_state:
 		print("⚔️ Attacking →", is_attacking)
 		_last_attack_state = is_attacking
 
-	# MOVEMENT CHANGE (only meaningful change)
 	if velocity.distance_to(_last_velocity) > 5.0:
 		print("🏃 Velocity →", velocity)
 		_last_velocity = velocity

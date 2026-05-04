@@ -312,7 +312,7 @@ shape = SubResource("RectangleShape2D_n7ghd")
 
 [node name="PlayerAnimation" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_dx0e4")
-animation = &"attack_down"
+animation = &"attack_right"
 
 [node name="PlayerStateMachine" type="Node" parent="."]
 script = ExtResource("2_2hs0m")
