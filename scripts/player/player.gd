@@ -4,7 +4,7 @@ extends CharacterBody2D
 # =========================================================
 # MOVEMENT
 # =========================================================
-@export var speed: float = 200.0
+@export var speed: float = 100.0
 
 var move_input: Vector2 = Vector2.ZERO
 var last_direction: Vector2 = Vector2.DOWN

@@ -304,6 +304,7 @@ animations = [{
 }]
 
 [node name="Player" type="CharacterBody2D" groups=["player"]]
+scale = Vector2(0.5, 0.5)
 collision_mask = 2
 script = ExtResource("1_sweqy")
 
@@ -330,7 +331,6 @@ script = ExtResource("5_b26j0")
 script = ExtResource("8_5gtgg")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-enabled = false
-zoom = Vector2(0.8, 0.8)
+zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0

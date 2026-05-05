@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bnjbwfw3omnw8"
-path="res://.godot/imported/Sprite-0001.png-4ba36b03720b98e07141178ca2f0a4cc.ctex"
+uid="uid://dldyo0ve4shxc"
+path="res://.godot/imported/Large Spruce Tree - COLD - High Snow0002.png-4ccdc31032c6c99c480c8d400d64bd00.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/Sprite-0001.png"
-dest_files=["res://.godot/imported/Sprite-0001.png-4ba36b03720b98e07141178ca2f0a4cc.ctex"]
+source_file="res://assets/sprites/Large Spruce Tree - COLD - High Snow0002.png"
+dest_files=["res://.godot/imported/Large Spruce Tree - COLD - High Snow0002.png-4ccdc31032c6c99c480c8d400d64bd00.ctex"]
 
 [params]
 

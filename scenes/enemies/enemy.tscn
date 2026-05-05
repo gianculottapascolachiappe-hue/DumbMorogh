@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://crjivuhxqdri8" path="res://scripts/enemies/enemy.gd" id="1_38ino"]
 [ext_resource type="Texture2D" uid="uid://baur5emvppwrw" path="res://assets/animations/Sprite-0002-Sheet.png" id="2_qch6t"]
 [ext_resource type="Texture2D" uid="uid://bo836uhrcxh5w" path="res://assets/animations/Sprite-0003-Sheet.png" id="2_y5th1"]
-[ext_resource type="Texture2D" uid="uid://c6dtd53pcms66" path="res://assets/sprites/Sprite-0002.png" id="4_fcftc"]
+[ext_resource type="Texture2D" uid="uid://c6dtd53pcms66" path="res://assets/placeholders/Sprite-0002.png" id="4_fcftc"]
 [ext_resource type="Script" uid="uid://dw6tgjrwl78kc" path="res://scripts/state_machine/ai_state_machine.gd" id="5_nb6gf"]
 [ext_resource type="Script" uid="uid://cspbg8cvv0did" path="res://scripts/state_machine/enemy_idle_state.gd" id="6_jt03m"]
 [ext_resource type="Script" uid="uid://c204l84a4pfsj" path="res://scripts/state_machine/ai_base_state.gd" id="7_jt03m"]
@@ -308,6 +308,7 @@ animations = [{
 size = Vector2(32, 32)
 
 [node name="Enemy" type="CharacterBody2D"]
+scale = Vector2(0.5, 0.5)
 collision_mask = 2
 script = ExtResource("1_38ino")
 
